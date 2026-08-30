@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0F1A12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KP Cattle">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Kroupa Pukwana Cattle, LLP - Farm Analytics Dashboard</title>
+<style>
+:root{--bg:#0F1A12;--card:#1A2E1F;--card2:#223828;--border:#2D4A35;--text:#E8F5E9;--muted:#8BAF92;--green:#2D6A4F;--greenL:#40916C;--gold:#E8A317;--goldL:#F4C430;--red:#C1292E;--blue:#1B4965;--blueL:#5FA8D3;--accent:#4CAF50}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--blueL);text-decoration:none}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0d1a0f 0%,#1a2e1f 50%,#0d1a0f 100%);border-bottom:2px solid var(--border);padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#fff;flex-shrink:0;box-shadow:0 2px 12px rgba(45,106,79,.5)}
+.header-text h1{font-size:22px;font-weight:700;letter-spacing:0.3px}
+.header-text p{font-size:13px;color:var(--muted);margin-top:3px}
+
+/* Tabs */
+.tab-bar{display:flex;gap:0;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:thin}
+.tab-btn{padding:12px 20px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
+.tab-btn:hover{color:var(--text);background:rgba(76,175,80,.07)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(232,163,23,.06)}
+
+/* Content */
+.content{padding:20px 28px 40px;max-width:1600px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:border-color .2s}
+.card:hover{border-color:var(--greenL)}
+.card-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.card-value{font-size:26px;font-weight:700}
+.card-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.card-value.gold{color:var(--gold)}
+.card-value.green{color:var(--accent)}
+.card-value.blue{color:var(--blueL)}
+.card-value.red{color:var(--red)}
+
+/* Section */
+.section{margin-bottom:28px}
+.section-title{font-size:16px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-title .badge{font-size:11px;background:var(--green);color:var(--text);padding:2px 10px;border-radius:12px}
+
+/* Tables */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+thead{background:rgba(45,106,79,.25)}
+th{text-align:left;padding:10px 14px;font-weight:700;color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.8px;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
+td{padding:9px 14px;border-bottom:1px solid rgba(45,74,53,.4);white-space:nowrap}
+tr:hover td{background:rgba(76,175,80,.04)}
+.text-right{text-align:right}
+.text-center{text-align:center}
+.crop-corn{color:var(--gold)}
+.crop-soy{color:var(--accent)}
+
+/* Status badges */
+.status{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-ok{background:rgba(76,175,80,.15);color:var(--accent)}
+.status-warn{background:rgba(232,163,23,.15);color:var(--gold)}
+.status-danger{background:rgba(193,41,46,.15);color:var(--red)}
+
+/* Progress bars */
+.prog-wrap{background:rgba(255,255,255,.06);border-radius:8px;height:14px;overflow:hidden;position:relative;min-width:80px}
+.prog-bar{height:100%;border-radius:8px;transition:width .5s}
+.prog-label{position:absolute;right:6px;top:0;line-height:14px;font-size:10px;font-weight:600;color:#fff}
+
+/* Weather cards */
+.weather-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:16px}
+.weather-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.weather-card h3{font-size:14px;margin-bottom:12px;color:var(--gold)}
+.weather-card .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.metric{display:flex;flex-direction:column}
+.metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.metric-val{font-size:16px;font-weight:600}
+
+/* Buttons */
+.btn{padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--greenL)}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover{background:var(--goldL)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Chart containers */
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:20px}
+.chart-container h3{font-size:14px;margin-bottom:14px;color:var(--muted)}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:180px;padding:10px 0}
+.bar-group{display:flex;flex-direction:column;align-items:center;flex:1;min-width:40px}
+.bar{width:100%;max-width:30px;border-radius:4px 4px 0 0;transition:height .5s;position:relative}
+.bar-label{font-size:9px;color:var(--muted);margin-top:4px;text-align:center}
+.bar-val{font-size:9px;color:var(--text);margin-bottom:2px;text-align:center}
+
+/* Rotation chart */
+.rot-chart{display:flex;gap:3px;height:26px;border-radius:6px;overflow:hidden;margin-bottom:4px}
+.rot-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+
+/* Blend gauge */
+.gauge-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.gauge-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;flex:1;min-width:200px;text-align:center}
+.gauge-box .val{font-size:32px;font-weight:800}
+.gauge-box .lbl{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Weather status */
+.weather-status{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.weather-status .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot-ok{background:var(--accent)}
+.dot-err{background:var(--red)}
+.dot-loading{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Suggestion cards */
+.sugg-card{background:var(--card);border-left:4px solid var(--greenL);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:12px}
+.sugg-card h4{font-size:13px;margin-bottom:4px}
+.sugg-card p{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Responsive */
+@media(max-width:768px){
+  .header{padding:14px;gap:12px}
+  .header-text h1{font-size:17px}
+  .content{padding:14px}
+  .cards{grid-template-columns:1fr 1fr}
+  .tab-btn{padding:10px 12px;font-size:12px}
+  .weather-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .cards{grid-template-columns:1fr}
+  .gauge-row{flex-direction:column}
+}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#000}
+  .tab-bar,.btn{display:none}
+  .tab-panel{display:block!important;page-break-after:always}
+  .card{border:1px solid #ccc}
+  table{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">KP</div>
+  <div class="header-text">
+    <h1>Kroupa Pukwana Cattle, LLP</h1>
+    <p>Cutting Edge Ag Analytics &bull; 2026 Season &bull; 33 Fields &bull; 5,148 Total Acres</p>
+  </div>
+</div>
+
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+  <button class="tab-btn" data-tab="weather">Live Weather</button>
+  <button class="tab-btn" data-tab="fields">Fields &amp; Zones</button>
+  <button class="tab-btn" data-tab="fertilizer">Fertilizer</button>
+  <button class="tab-btn" data-tab="soil">Soil Samples</button>
+  <button class="tab-btn" data-tab="yield">Yield Data</button>
+  <button class="tab-btn" data-tab="nblend">N Blend Status</button>
+  <button class="tab-btn" data-tab="rotation">Crop Rotation</button>
+  <button class="tab-btn" data-tab="fertsugg">Fert Suggestions</button>
+</div>
+
+<div class="content">
+
+  <!-- ============ DASHBOARD TAB ============ -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="cards" id="summaryCards"></div>
+
+    <div class="section">
+      <div class="section-title">Crop Acreage Breakdown</div>
+      <div class="cards" id="cropBreakdown"></div>
+    </div>
+
+    <div class="chart-container">
+      <h3>Historical Acreage by Crop (2018-2026)</h3>
+      <div class="bar-chart" id="histChart"></div>
+      <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--gold)">&#9632; Corn</span>
+        <span style="font-size:11px;color:var(--accent)">&#9632; Soybeans</span>
+        <span style="font-size:11px;color:var(--blueL)">&#9632; Wheat</span>
+        <span style="font-size:11px;color:var(--muted)">&#9632; Grain Sorghum</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Top Yielding Fields (2025 Harvest) <span class="badge">bu/ac</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Field</th><th>Hybrid</th><th>Yield</th><th>Moisture %</th><th>Acres</th></tr></thead>
+          <tbody id="topYields"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LIVE WEATHER TAB ============ -->
+  <div class="tab-panel" id="tab-weather">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnRefreshWeather" onclick="fetchAllWeather()">Refresh Weather</button>
+      <div class="weather-status" id="weatherStatus">
+        <span class="dot dot-err"></span>
+        <span style="font-size:12px;color:var(--muted)" id="weatherStatusText">Not yet loaded</span>
+      </div>
+    </div>
+    <div class="weather-grid" id="weatherGrid">
+      <div class="weather-card" style="text-align:center;padding:40px;grid-column:1/-1">
+        <p style="color:var(--muted)">Click "Refresh Weather" to load current conditions from all 4 WeatherLink stations.</p>
+        <p style="color:var(--muted);font-size:11px;margin-top:8px">Note: Weather API requires HTTPS/CORS. If loading from file://, data may not load due to browser security.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FIELDS & ZONES TAB ============ -->
+  <div class="tab-panel" id="tab-fields">
+    <div class="section">
+      <div class="section-title">Corn Fields <span class="badge" id="cornFieldCount"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th class="text-right">Acres</th><th class="text-right">Yield Goal</th><th class="text-right">Population</th><th class="text-right">Planting Zones</th><th class="text-right">BSK Index</th><th>Previous Crop</th></tr></thead>
+          <tbody id="cornFieldsTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Soybean Fields <span class="badge" id="soyFieldCount"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th class="text-right">Acres</th><th class="text-right">Yield Goal</th><th>Previous Crop</th></tr></thead>
+          <tbody id="soyFieldsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FERTILIZER TAB ============ -->
+  <div class="tab-panel" id="tab-fertilizer">
+    <div class="section">
+      <div class="section-title">Liquid Fertilizer Deliveries <span class="badge" id="deliveryCount"></span></div>
+      <div class="table-wrap" style="max-height:500px;overflow-y:auto">
+        <table>
+          <thead><tr><th>Date</th><th>Delivery #</th><th class="text-right">NRG-N</th><th class="text-right">Access</th><th class="text-right">ProGerm</th><th class="text-right">Micro 500</th><th class="text-right">4% Zinc</th><th class="text-right">Total Gal</th></tr></thead>
+          <tbody id="deliveryTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Delivery Totals by Product</div>
+      <div class="cards" id="deliveryTotals"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Liquid Fertilizer Pricing (2026 Season)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Product</th><th>Period</th><th class="text-right">Price/Gal</th></tr></thead>
+          <tbody>
+            <tr><td>NRG-N 24-0-0-1</td><td>December 2025</td><td class="text-right">$3.20</td></tr>
+            <tr><td>NRG-N 24-0-0-1</td><td>February 2026</td><td class="text-right">$3.25</td></tr>
+            <tr><td>Access</td><td>All season</td><td class="text-right">$5.25</td></tr>
+            <tr><td>ProGerminator 9-24-3-1</td><td>All season</td><td class="text-right">$7.30</td></tr>
+            <tr><td>Micro 500</td><td>All season</td><td class="text-right">$19.00</td></tr>
+            <tr><td>4% Zinc</td><td>All season</td><td class="text-right">$18.50</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dry Fertilizer Orders</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Description</th><th class="text-right">Quantity</th><th>Unit</th><th class="text-right">Rate/Unit</th><th class="text-right">Total Cost</th></tr></thead>
+          <tbody id="dryFertTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SOIL SAMPLES TAB ============ -->
+  <div class="tab-panel" id="tab-soil">
+    <div class="section">
+      <div class="section-title">Soil Sample Results (Corn Fields) <span class="badge">Field Average</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th class="text-right">Acres</th><th class="text-right">O.M. %</th><th class="text-right">P (ppm)</th><th class="text-right">K (ppm)</th><th class="text-right">S (ppm)</th><th>O.M. Rating</th><th>P Rating</th></tr></thead>
+          <tbody id="soilTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Soil Averages Summary</div>
+      <div class="cards" id="soilSummary"></div>
+    </div>
+  </div>
+
+  <!-- ============ YIELD DATA TAB ============ -->
+  <div class="tab-panel" id="tab-yield">
+    <div class="section">
+      <div class="section-title">2025 Harvest Yield Data <span class="badge" id="yieldCount"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Field</th><th>Hybrid / Variety</th><th class="text-right">Yield (bu/ac)</th><th class="text-right">Moisture %</th><th class="text-right">Acres</th></tr></thead>
+          <tbody id="yieldTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Yield Statistics</div>
+      <div class="cards" id="yieldStats"></div>
+    </div>
+    <div class="chart-container">
+      <h3>Yield by Entry (bu/ac)</h3>
+      <div class="bar-chart" style="height:220px" id="yieldChart"></div>
+    </div>
+  </div>
+
+  <!-- ============ N BLEND STATUS TAB ============ -->
+  <div class="tab-panel" id="tab-nblend">
+    <div class="section">
+      <div class="section-title">Nitrogen Blend Inventory Status</div>
+      <div class="gauge-row" id="blendGauges"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">N Blend Balance</div>
+      <div class="cards" id="blendCards"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Blend Component Summary</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th class="text-right">Total Delivered (gal)</th><th class="text-right">Estimated Value</th></tr></thead>
+          <tbody id="blendBreakdown"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CROP ROTATION TAB ============ -->
+  <div class="tab-panel" id="tab-rotation">
+    <div class="section">
+      <div class="section-title">Historical Crop Acreage (2018-2026)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Year</th><th class="text-right">Corn</th><th class="text-right">Soybeans</th><th class="text-right">Wheat</th><th class="text-right">Grain Sorghum</th><th class="text-right">Total</th></tr></thead>
+          <tbody id="rotationTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>Crop Mix by Year</h3>
+      <div id="rotationViz"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">2026 Rotation Breakdown by Field</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>2026 Crop</th><th>Previous Crop</th><th>Rotation Type</th></tr></thead>
+          <tbody id="rotFieldTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FERT SUGGESTIONS TAB ============ -->
+  <div class="tab-panel" id="tab-fertsugg">
+    <div class="section">
+      <div class="section-title">Fertilizer Suggestions by Field</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Recommendations based on soil test results, yield goals, BSK index, and previous crop. University-guideline rates adjusted for local conditions.</p>
+      <div id="fertSuggestions"></div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ==================== DATA ====================
+const FIELDS=[
+{n:"Ardyces",crop:"Corn",ac:144.3,yg:172,pop:25555,pZ:4,soil:{OM:3.09,P:44.8,K:72.2,S:4.4},bsk:3.5,nRate:20,prev:"Soybeans"},
+{n:"Brodkorb East",crop:"Corn",ac:116.2,yg:162,pop:23666,pZ:6,soil:{OM:3.95,P:11.8,K:1.5,S:3.9},bsk:5.5,nRate:20,prev:"Soybeans"},
+{n:"Brodkorb West",crop:"Corn",ac:81.5,yg:150,pop:21681,pZ:5,soil:{OM:3.57,P:9.5,K:1.2,S:3.5},bsk:4.6,nRate:20,prev:"Soybeans"},
+{n:"Carters South",crop:"Corn",ac:171.9,yg:158,pop:23928,pZ:6,soil:{OM:3.72,P:11.2,K:1.4,S:4.7},bsk:4.2,nRate:20,prev:"Corn"},
+{n:"End of Oil E",crop:"Corn",ac:49.8,yg:181,pop:24774,pZ:3,soil:{OM:3.96,P:8.4,K:1.1,S:3.6},bsk:4.9,nRate:20,prev:"Soybeans"},
+{n:"End of Oil W",crop:"Corn",ac:195.9,yg:167,pop:24612,pZ:6,soil:{OM:3.65,P:42,K:118,S:4},bsk:4,nRate:20,prev:"Soybeans"},
+{n:"Eric's",crop:"Corn",ac:202.1,yg:174,pop:25981,pZ:4,soil:{OM:4.15,P:16.8,K:2.1,S:3.7},bsk:3.2,nRate:20,prev:"Soybeans"},
+{n:"Havliks East",crop:"Corn",ac:121.8,yg:172,pop:25663,pZ:4,soil:{OM:3.89,P:17.6,K:2.2,S:4.1},bsk:4.2,nRate:20,prev:"Soybeans"},
+{n:"Hickeys North",crop:"Corn",ac:100.9,yg:172,pop:25356,pZ:4,soil:{OM:3.01,P:83.5,K:103.3,S:3.9},bsk:2.3,nRate:20,prev:"Soybeans"},
+{n:"Hickeys West",crop:"Corn",ac:100.6,yg:167,pop:26048,pZ:5,soil:{OM:3.63,P:14.1,K:1.8,S:4.8},bsk:3.8,nRate:20,prev:"Corn"},
+{n:"Hwy 45",crop:"Corn",ac:310.9,yg:155,pop:25639,pZ:4,soil:{OM:3.99,P:11.5,K:1.4,S:3.6},bsk:3.6,nRate:20,prev:"Soybeans"},
+{n:"Linda's",crop:"Corn",ac:150.8,yg:174,pop:26360,pZ:4,soil:{OM:4.05,P:16.8,K:2.1,S:4.3},bsk:3,nRate:20,prev:"Soybeans"},
+{n:"North Creek",crop:"Corn",ac:75.5,yg:162,pop:23511,pZ:4,soil:{OM:4.41,P:16.8,K:2.1,S:3.4},bsk:6.9,nRate:20,prev:"Milo"},
+{n:"Old Alfalfa",crop:"Corn",ac:107.3,yg:177,pop:26379,pZ:3,soil:{OM:5.01,P:16.8,K:2.1,S:3.7},bsk:2.5,nRate:20,prev:"Corn"},
+{n:"Picek's",crop:"Corn",ac:303.5,yg:176,pop:25988,pZ:6,soil:{OM:4.24,P:16.6,K:2.1,S:4.7},bsk:3.3,nRate:20,prev:"Corn"},
+{n:"Pivot",crop:"Corn",ac:92.8,yg:212,pop:28286,pZ:7,soil:{OM:2.65,P:84.1,K:106.7,S:4.9},bsk:4.6,nRate:20,prev:"Corn"},
+{n:"Potter",crop:"Corn",ac:263.4,yg:170,pop:26860,pZ:7,soil:{OM:4.5,P:16.8,K:2.1,S:4.6},bsk:3.4,nRate:20,prev:"Corn"},
+{n:"Priebes",crop:"Corn",ac:276.1,yg:174,pop:27410,pZ:4,soil:{OM:3.73,P:16.8,K:2.1,S:4.1},bsk:4.5,nRate:20,prev:"Corn"},
+{n:"Shelby Rd",crop:"Corn",ac:157,yg:157,pop:26306,pZ:3,soil:{OM:4.88,P:15.1,K:1.9,S:3.5},bsk:3.5,nRate:20,prev:"Soybeans"},
+{n:"Swansons",crop:"Corn",ac:75,yg:175,pop:27409,pZ:4,soil:{OM:4.25,P:15,K:15,S:15},bsk:3.5,nRate:20,prev:"Corn"}
+];
+
+const SOY_FIELDS=[
+{n:"Bobs",crop:"Soybeans",ac:140,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Carters North",crop:"Soybeans",ac:316.2,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Dans (Hickeys S)",crop:"Soybeans",ac:236.6,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Grandmas",crop:"Soybeans",ac:355.2,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Graves Driveway",crop:"Soybeans",ac:92.2,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Grunerts",crop:"Soybeans",ac:150.1,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Havliks West",crop:"Soybeans",ac:312.4,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Old Place",crop:"Soybeans",ac:148.3,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Roberts",crop:"Soybeans",ac:155.8,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"School House",crop:"Soybeans",ac:220.4,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"South Creek",crop:"Soybeans",ac:71.5,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"South East",crop:"Soybeans",ac:155.9,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"},
+{n:"Steve's",crop:"Soybeans",ac:133.1,yg:55,pop:0,pZ:0,soil:{},bsk:0,nRate:0,prev:"Corn"}
+];
+
+const ALL_FIELDS = FIELDS.concat(SOY_FIELDS);
+
+const DELIVERIES=[
+{d:"12/23/25",dn:"CRND12512SDH00003945",nrgn:5500,access:0,pg:0,m500:0,zinc:0,t:5500},
+{d:"12/23/25",dn:"11671",nrgn:5500,access:0,pg:0,m500:0,zinc:0,t:5500},
+{d:"02/16/26",dn:"IWA126025CHD0008475",nrgn:0,access:0,pg:5000,m500:250,zinc:250,t:5500},
+{d:"02/16/26",dn:"IWA126025CHD0008476",nrgn:0,access:0,pg:5000,m500:250,zinc:250,t:5500},
+{d:"02/17/26",dn:"IWA126025CHD0008478",nrgn:4188,access:812,pg:0,m500:0,zinc:0,t:5000},
+{d:"02/17/26",dn:"IWA126025CHD0008486",nrgn:4606,access:894,pg:0,m500:0,zinc:0,t:5500},
+{d:"02/17/26",dn:"IWA126025CHD0008490",nrgn:4187,access:813,pg:0,m500:0,zinc:0,t:5000},
+{d:"02/17/26",dn:"IWA126025CHD0008485",nrgn:0,access:0,pg:5000,m500:250,zinc:250,t:5500},
+{d:"02/18/26",dn:"IWA126025CHD0008493",nrgn:4188,access:812,pg:0,m500:0,zinc:0,t:5000},
+{d:"02/18/26",dn:"IWA126025CHD0008494",nrgn:4606,access:894,pg:0,m500:0,zinc:0,t:5500},
+{d:"02/18/26",dn:"IWA126025CHD0008502",nrgn:4606,access:894,pg:0,m500:0,zinc:0,t:5500},
+{d:"02/18/26",dn:"IWA126025CHD0008503",nrgn:4606,access:894,pg:0,m500:0,zinc:0,t:5500},
+{d:"02/18/26",dn:"IWA126025CHD0008504",nrgn:4187,access:813,pg:0,m500:0,zinc:0,t:5000},
+{d:"02/23/26",dn:"IWA126025CHD0008528",nrgn:4530,access:879,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/23/26",dn:"IWA126025CHD0008534",nrgn:4484,access:925,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/23/26",dn:"IWA126025CHD0008535",nrgn:2945,access:2464,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/24/26",dn:"IWA126025CHD0008544",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/24/26",dn:"IWA126025CHD0008545",nrgn:4855,access:554,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/24/26",dn:"IWA126025CHD0008546",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/25/26",dn:"IWA126025CHD0008555",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/25/26",dn:"IWA126025CHD0008556",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/25/26",dn:"IWA126025CHD0008557",nrgn:4855,access:554,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/26/26",dn:"IWA126025CHD0008566",nrgn:4855,access:554,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/26/26",dn:"IWA126025CHD0008567",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409},
+{d:"02/26/26",dn:"IWA126025CHD0008568",nrgn:4856,access:553,pg:0,m500:0,zinc:0,t:5409}
+];
+
+const YIELDS=[
+{f:"Pivot",h:"192-81VT2PRIB",y:201.87,m:11.67,a:90.17},
+{f:"Grandmas",h:"200-42VT2PRIB MAN",y:196.61,m:17.19,a:66.95},
+{f:"Grandmas",h:"200-42VT2PRIB",y:193.76,m:17.4,a:155.98},
+{f:"Havliks West",h:"203-83SSPRIB",y:178.57,m:17.87,a:221.42},
+{f:"Bobs",h:"DS-3881V",y:168.46,m:12.26,a:135.62},
+{f:"Grunerts",h:"195-85DGVT2PRIB",y:164.49,m:11.92,a:137.82},
+{f:"Carter's South",h:"DS-3730V",y:160.71,m:13.97,a:59.73},
+{f:"North Carter's",h:"CORN",y:153.53,m:14.08,a:53.53},
+{f:"Driveway",h:"MAN205-40VT4PRIB",y:148.2,m:15.39,a:47.82},
+{f:"Potter's",h:"199-45VT2PRIB",y:147.97,m:13.43,a:157.43},
+{f:"Old Alfalfa",h:"207-27STXRIB",y:143.67,m:11.51,a:7.565},
+{f:"Old Alfalfa",h:"MAN199-45VT2PRIB",y:135.85,m:10.44,a:37.76},
+{f:"Carter's South",h:"DS-4365V",y:132.45,m:14.91,a:108.07}
+];
+
+const CROP_HIST=[
+{y:2018,C:1720,S:1977,W:1162,G:160},
+{y:2019,C:1797,S:888,W:1570,G:160},
+{y:2020,C:2567,S:2645,W:0,G:160},
+{y:2021,C:2908,S:1973,W:769,G:160},
+{y:2022,C:2536,S:1879,W:1713,G:160},
+{y:2023,C:2420,S:2254,W:906,G:160},
+{y:2024,C:4193,S:1070,W:0,G:160},
+{y:2025,C:3271,S:1861,W:0,G:160},
+{y:2026,C:3095,S:1893,W:0,G:160}
+];
+
+const DRY_FERT=[
+{item:"MAP",desc:"MAP 11-52-0 (209)",ordered:50000,unit:"lbs",rate:0.4175,cost:20875},
+{item:"Potash",desc:"Potash 0-0-60 (428)",ordered:65000,unit:"lbs",rate:0.235,cost:15275},
+{item:"Spreader Application",desc:"Custom spreading",ordered:530,unit:"ac",rate:8.5,cost:4505}
+];
+
+const STATIONS=[
+{name:"Kroupa Pukwana Cattle",id:201189},
+{name:"Carter's",id:201710},
+{name:"Grandmas",id:202078},
+{name:"Dan's",id:202079}
+];
+
+// N Blend constants
+const cornPSM=119597,nBlendDel=112499,ryeUsed=12469,starterNeeded=22756,starterDelivered=22000;
+
+// ==================== HELPERS ====================
+function fmt(n,d){if(n==null)return'--';return d!==undefined?n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}):n.toLocaleString('en-US')}
+function usd(n){return'$'+fmt(n,2)}
+function pct(n){return fmt(n,1)+'%'}
+
+// ==================== TAB SYSTEM ====================
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ==================== DASHBOARD TAB ====================
+(function buildDashboard(){
+  const cornFields=FIELDS;
+  const soyFields=SOY_FIELDS;
+  const cornAc=cornFields.reduce((s,f)=>s+f.ac,0);
+  const soyAc=soyFields.reduce((s,f)=>s+f.ac,0);
+  const totalAc=cornAc+soyAc;
+  const avgYG=cornFields.reduce((s,f)=>s+f.yg,0)/cornFields.length;
+  const avgPop=cornFields.reduce((s,f)=>s+f.pop,0)/cornFields.length;
+  const totalDel=DELIVERIES.reduce((s,d)=>s+d.t,0);
+
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="card"><div class="card-label">Total Acres</div><div class="card-value green">${fmt(totalAc,1)}</div><div class="card-sub">${cornFields.length+soyFields.length} fields</div></div>
+    <div class="card"><div class="card-label">Corn Acres</div><div class="card-value gold">${fmt(cornAc,1)}</div><div class="card-sub">${cornFields.length} fields</div></div>
+    <div class="card"><div class="card-label">Soybean Acres</div><div class="card-value green">${fmt(soyAc,1)}</div><div class="card-sub">${soyFields.length} fields</div></div>
+    <div class="card"><div class="card-label">Avg Corn Yield Goal</div><div class="card-value blue">${fmt(avgYG,0)} bu/ac</div><div class="card-sub">Across ${cornFields.length} fields</div></div>
+    <div class="card"><div class="card-label">Avg Population</div><div class="card-value">${fmt(Math.round(avgPop))}</div><div class="card-sub">seeds/ac</div></div>
+    <div class="card"><div class="card-label">Liquid Fert Delivered</div><div class="card-value gold">${fmt(totalDel)} gal</div><div class="card-sub">${DELIVERIES.length} deliveries</div></div>
+    <div class="card"><div class="card-label">Weather Stations</div><div class="card-value blue">${STATIONS.length}</div><div class="card-sub">WeatherLink v2</div></div>
+    <div class="card"><div class="card-label">Season</div><div class="card-value">2026</div><div class="card-sub">Current season analytics</div></div>
+  `;
+
+  document.getElementById('cropBreakdown').innerHTML=`
+    <div class="card"><div class="card-label">Corn %</div><div class="card-value gold">${pct(cornAc/totalAc*100)}</div><div class="card-sub">${fmt(cornAc,1)} acres</div></div>
+    <div class="card"><div class="card-label">Soybeans %</div><div class="card-value green">${pct(soyAc/totalAc*100)}</div><div class="card-sub">${fmt(soyAc,1)} acres</div></div>
+    <div class="card"><div class="card-label">Corn After Soybeans</div><div class="card-value">${cornFields.filter(f=>f.prev==='Soybeans').length}</div><div class="card-sub">fields</div></div>
+    <div class="card"><div class="card-label">Corn After Corn</div><div class="card-value">${cornFields.filter(f=>f.prev==='Corn').length}</div><div class="card-sub">fields</div></div>
+  `;
+
+  // Top yields
+  let yRows='';
+  YIELDS.slice(0,5).forEach((y,i)=>{
+    yRows+=`<tr><td>${i+1}</td><td>${y.f}</td><td>${y.h}</td><td class="text-right" style="color:var(--gold);font-weight:700">${fmt(y.y,2)}</td><td class="text-right">${pct(y.m)}</td><td class="text-right">${fmt(y.a,2)}</td></tr>`;
+  });
+  document.getElementById('topYields').innerHTML=yRows;
+
+  // History chart
+  const maxAc=Math.max(...CROP_HIST.map(r=>r.C+r.S+r.W+r.G));
+  let histHtml='';
+  CROP_HIST.forEach(r=>{
+    const total=r.C+r.S+r.W+r.G;
+    const hC=Math.round(r.C/maxAc*160);
+    const hS=Math.round(r.S/maxAc*160);
+    const hW=Math.round(r.W/maxAc*160);
+    const hG=Math.round(r.G/maxAc*160);
+    histHtml+=`<div class="bar-group">
+      <div class="bar-val">${fmt(total)}</div>
+      <div style="display:flex;flex-direction:column-reverse;align-items:center;gap:1px">
+        <div class="bar" style="height:${hC}px;background:var(--gold);width:28px" title="Corn: ${fmt(r.C)}"></div>
+        <div class="bar" style="height:${hS}px;background:var(--accent);width:28px" title="Soy: ${fmt(r.S)}"></div>
+        ${r.W?`<div class="bar" style="height:${hW}px;background:var(--blueL);width:28px" title="Wheat: ${fmt(r.W)}"></div>`:''}
+        ${r.G?`<div class="bar" style="height:${hG}px;background:var(--muted);width:28px" title="GS: ${fmt(r.G)}"></div>`:''}
+      </div>
+      <div class="bar-label">${r.y}</div>
+    </div>`;
+  });
+  document.getElementById('histChart').innerHTML=histHtml;
+})();
+
+// ==================== FIELDS & ZONES TAB ====================
+(function buildFields(){
+  let cornRows='',cornAcTotal=0;
+  FIELDS.forEach(f=>{
+    cornAcTotal+=f.ac;
+    cornRows+=`<tr><td>${f.n}</td><td class="text-right">${fmt(f.ac,1)}</td><td class="text-right">${fmt(f.yg)}</td><td class="text-right">${fmt(f.pop)}</td><td class="text-right">${f.pZ}</td><td class="text-right">${fmt(f.bsk,1)}</td><td>${f.prev}</td></tr>`;
+  });
+  cornRows+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL</td><td class="text-right">${fmt(cornAcTotal,1)}</td><td colspan="5"></td></tr>`;
+  document.getElementById('cornFieldsTable').innerHTML=cornRows;
+  document.getElementById('cornFieldCount').textContent=FIELDS.length+' fields';
+
+  let soyRows='',soyAcTotal=0;
+  SOY_FIELDS.forEach(f=>{
+    soyAcTotal+=f.ac;
+    soyRows+=`<tr><td>${f.n}</td><td class="text-right">${fmt(f.ac,1)}</td><td class="text-right">${fmt(f.yg)}</td><td>${f.prev}</td></tr>`;
+  });
+  soyRows+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL</td><td class="text-right">${fmt(soyAcTotal,1)}</td><td colspan="2"></td></tr>`;
+  document.getElementById('soyFieldsTable').innerHTML=soyRows;
+  document.getElementById('soyFieldCount').textContent=SOY_FIELDS.length+' fields';
+})();
+
+// ==================== FERTILIZER TAB ====================
+(function buildFertilizer(){
+  document.getElementById('deliveryCount').textContent=DELIVERIES.length+' deliveries';
+  let rows='';
+  const totals={nrgn:0,access:0,pg:0,m500:0,zinc:0,t:0};
+  DELIVERIES.forEach(d=>{
+    rows+=`<tr><td>${d.d}</td><td style="font-size:11px">${d.dn}</td><td class="text-right">${d.nrgn?fmt(d.nrgn):'--'}</td><td class="text-right">${d.access?fmt(d.access):'--'}</td><td class="text-right">${d.pg?fmt(d.pg):'--'}</td><td class="text-right">${d.m500?fmt(d.m500):'--'}</td><td class="text-right">${d.zinc?fmt(d.zinc):'--'}</td><td class="text-right" style="font-weight:600">${fmt(d.t)}</td></tr>`;
+    totals.nrgn+=d.nrgn;totals.access+=d.access;totals.pg+=d.pg;totals.m500+=d.m500;totals.zinc+=d.zinc;totals.t+=d.t;
+  });
+  rows+=`<tr style="font-weight:700;border-top:2px solid var(--gold);background:rgba(232,163,23,.06)"><td colspan="2">TOTALS</td><td class="text-right">${fmt(totals.nrgn)}</td><td class="text-right">${fmt(totals.access)}</td><td class="text-right">${fmt(totals.pg)}</td><td class="text-right">${fmt(totals.m500)}</td><td class="text-right">${fmt(totals.zinc)}</td><td class="text-right">${fmt(totals.t)}</td></tr>`;
+  document.getElementById('deliveryTable').innerHTML=rows;
+
+  // Estimate weighted NRG-N cost: first 11000 at $3.20, rest at $3.25
+  const decNrgn=11000,decPrice=3.20,febPrice=3.25;
+  const febNrgn=Math.max(0,totals.nrgn-decNrgn);
+  const nrgnCost=decNrgn*decPrice+febNrgn*febPrice;
+
+  document.getElementById('deliveryTotals').innerHTML=`
+    <div class="card"><div class="card-label">NRG-N Total</div><div class="card-value gold">${fmt(totals.nrgn)} gal</div><div class="card-sub">Est. ${usd(nrgnCost)}</div></div>
+    <div class="card"><div class="card-label">Access Total</div><div class="card-value">${fmt(totals.access)} gal</div><div class="card-sub">Est. ${usd(totals.access*5.25)}</div></div>
+    <div class="card"><div class="card-label">ProGerminator Total</div><div class="card-value green">${fmt(totals.pg)} gal</div><div class="card-sub">Est. ${usd(totals.pg*7.30)}</div></div>
+    <div class="card"><div class="card-label">Micro 500 Total</div><div class="card-value blue">${fmt(totals.m500)} gal</div><div class="card-sub">Est. ${usd(totals.m500*19)}</div></div>
+    <div class="card"><div class="card-label">4% Zinc Total</div><div class="card-value">${fmt(totals.zinc)} gal</div><div class="card-sub">Est. ${usd(totals.zinc*18.50)}</div></div>
+    <div class="card"><div class="card-label">Total Gallons</div><div class="card-value gold">${fmt(totals.t)} gal</div><div class="card-sub">${DELIVERIES.length} loads</div></div>
+  `;
+
+  // Dry fert
+  let dryRows='',dryCostTotal=0;
+  DRY_FERT.forEach(d=>{
+    dryCostTotal+=d.cost;
+    dryRows+=`<tr><td>${d.item}</td><td>${d.desc}</td><td class="text-right">${fmt(d.ordered)}</td><td>${d.unit}</td><td class="text-right">${usd(d.rate)}</td><td class="text-right">${usd(d.cost)}</td></tr>`;
+  });
+  dryRows+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td colspan="5">TOTAL</td><td class="text-right">${usd(dryCostTotal)}</td></tr>`;
+  document.getElementById('dryFertTable').innerHTML=dryRows;
+})();
+
+// ==================== SOIL SAMPLES TAB ====================
+(function buildSoil(){
+  let rows='';
+  const cornWithSoil=FIELDS.filter(f=>f.soil&&f.soil.OM);
+  let sumOM=0,sumP=0,sumK=0,sumS=0;
+  cornWithSoil.forEach(f=>{
+    const s=f.soil;
+    sumOM+=s.OM;sumP+=s.P;sumK+=s.K;sumS+=s.S;
+    const omRating=s.OM>=4.5?'High':s.OM>=3.5?'Medium':'Low';
+    const omClass=s.OM>=4.5?'status-ok':s.OM>=3.5?'status-warn':'status-danger';
+    const pRating=s.P>=30?'Very High':s.P>=15?'High':s.P>=8?'Medium':'Low';
+    const pClass=s.P>=30?'status-ok':s.P>=15?'status-warn':'status-danger';
+    rows+=`<tr><td>${f.n}</td><td class="text-right">${fmt(f.ac,1)}</td><td class="text-right">${fmt(s.OM,2)}</td><td class="text-right">${fmt(s.P,1)}</td><td class="text-right">${fmt(s.K,1)}</td><td class="text-right">${fmt(s.S,1)}</td><td><span class="status ${omClass}">${omRating}</span></td><td><span class="status ${pClass}">${pRating}</span></td></tr>`;
+  });
+  document.getElementById('soilTable').innerHTML=rows;
+
+  const n=cornWithSoil.length;
+  document.getElementById('soilSummary').innerHTML=`
+    <div class="card"><div class="card-label">Avg O.M.</div><div class="card-value green">${fmt(sumOM/n,2)}%</div><div class="card-sub">${n} fields sampled</div></div>
+    <div class="card"><div class="card-label">Avg Phosphorus</div><div class="card-value blue">${fmt(sumP/n,1)} ppm</div><div class="card-sub">Bray-1 P</div></div>
+    <div class="card"><div class="card-label">Avg Potassium</div><div class="card-value">${fmt(sumK/n,1)} ppm</div><div class="card-sub">Exchangeable K</div></div>
+    <div class="card"><div class="card-label">Avg Sulfur</div><div class="card-value gold">${fmt(sumS/n,1)} ppm</div><div class="card-sub">Available S</div></div>
+  `;
+})();
+
+// ==================== YIELD DATA TAB ====================
+(function buildYield(){
+  document.getElementById('yieldCount').textContent=YIELDS.length+' entries';
+  let rows='';
+  const sortedY=[...YIELDS].sort((a,b)=>b.y-a.y);
+  sortedY.forEach((y,i)=>{
+    const color=y.y>=180?'var(--accent)':y.y>=160?'var(--gold)':y.y>=140?'var(--text)':'var(--red)';
+    rows+=`<tr><td>${i+1}</td><td>${y.f}</td><td>${y.h}</td><td class="text-right" style="color:${color};font-weight:700">${fmt(y.y,2)}</td><td class="text-right">${pct(y.m)}</td><td class="text-right">${fmt(y.a,2)}</td></tr>`;
+  });
+  document.getElementById('yieldTable').innerHTML=rows;
+
+  const yields=YIELDS.map(y=>y.y);
+  const avgY=yields.reduce((s,v)=>s+v,0)/yields.length;
+  const maxY=Math.max(...yields);
+  const minY=Math.min(...yields);
+  const totalA=YIELDS.reduce((s,y)=>s+y.a,0);
+  const wtdAvg=YIELDS.reduce((s,y)=>s+y.y*y.a,0)/totalA;
+
+  document.getElementById('yieldStats').innerHTML=`
+    <div class="card"><div class="card-label">Simple Average</div><div class="card-value gold">${fmt(avgY,1)} bu/ac</div></div>
+    <div class="card"><div class="card-label">Weighted Average</div><div class="card-value green">${fmt(wtdAvg,1)} bu/ac</div><div class="card-sub">By acres</div></div>
+    <div class="card"><div class="card-label">Highest Yield</div><div class="card-value" style="color:var(--accent)">${fmt(maxY,2)} bu/ac</div><div class="card-sub">${YIELDS.find(y=>y.y===maxY).f}</div></div>
+    <div class="card"><div class="card-label">Lowest Yield</div><div class="card-value red">${fmt(minY,2)} bu/ac</div><div class="card-sub">${YIELDS.find(y=>y.y===minY).f}</div></div>
+    <div class="card"><div class="card-label">Total Acres Reported</div><div class="card-value blue">${fmt(totalA,1)}</div><div class="card-sub">${YIELDS.length} entries</div></div>
+  `;
+
+  // Yield bar chart
+  const maxYield=Math.max(...yields);
+  let chartHtml='';
+  sortedY.forEach(y=>{
+    const h=Math.round(y.y/maxYield*200);
+    const color=y.y>=180?'var(--accent)':y.y>=160?'var(--gold)':'var(--blueL)';
+    chartHtml+=`<div class="bar-group"><div class="bar-val">${fmt(y.y,0)}</div><div class="bar" style="height:${h}px;background:${color};width:100%;max-width:40px"></div><div class="bar-label">${y.f.length>10?y.f.slice(0,9)+'..':y.f}</div></div>`;
+  });
+  document.getElementById('yieldChart').innerHTML=chartHtml;
+})();
+
+// ==================== N BLEND STATUS TAB ====================
+(function buildNBlend(){
+  const nBlendAvail=nBlendDel-ryeUsed;
+  const nBlendRemaining=nBlendAvail-cornPSM;
+  const starterRemaining=starterDelivered-starterNeeded;
+  const nBlendPct=Math.min(100,nBlendAvail/cornPSM*100);
+  const starterPct=Math.min(100,starterDelivered/starterNeeded*100);
+
+  const nBlendColor=nBlendPct>=100?'var(--accent)':nBlendPct>=90?'var(--gold)':'var(--red)';
+  const starterColor=starterPct>=100?'var(--accent)':starterPct>=90?'var(--gold)':'var(--red)';
+
+  document.getElementById('blendGauges').innerHTML=`
+    <div class="gauge-box">
+      <div class="val" style="color:var(--gold)">${fmt(cornPSM)}</div>
+      <div class="lbl">Corn PSM Needed (gal)</div>
+    </div>
+    <div class="gauge-box">
+      <div class="val" style="color:var(--accent)">${fmt(nBlendDel)}</div>
+      <div class="lbl">N Blend Delivered (gal)</div>
+    </div>
+    <div class="gauge-box">
+      <div class="val" style="color:var(--blueL)">${fmt(nBlendAvail)}</div>
+      <div class="lbl">Available After Rye (gal)</div>
+    </div>
+    <div class="gauge-box">
+      <div class="val" style="color:${nBlendColor}">${fmt(nBlendAvail-cornPSM)}</div>
+      <div class="lbl">Surplus / (Deficit) N Blend</div>
+    </div>
+  `;
+
+  document.getElementById('blendCards').innerHTML=`
+    <div class="card">
+      <div class="card-label">N Blend Coverage</div>
+      <div class="prog-wrap" style="height:20px;margin-bottom:8px"><div class="prog-bar" style="width:${Math.min(100,nBlendPct)}%;background:${nBlendColor}"></div><div class="prog-label">${fmt(nBlendPct,1)}%</div></div>
+      <div class="card-sub">${fmt(nBlendAvail)} of ${fmt(cornPSM)} gal needed</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Rye Application Used</div>
+      <div class="card-value gold">${fmt(ryeUsed)} gal</div>
+      <div class="card-sub">Deducted from delivered total</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Starter Coverage</div>
+      <div class="prog-wrap" style="height:20px;margin-bottom:8px"><div class="prog-bar" style="width:${Math.min(100,starterPct)}%;background:${starterColor}"></div><div class="prog-label">${fmt(starterPct,1)}%</div></div>
+      <div class="card-sub">${fmt(starterDelivered)} of ${fmt(starterNeeded)} gal needed</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Starter Surplus / (Deficit)</div>
+      <div class="card-value ${starterRemaining>=0?'green':'red'}">${fmt(starterRemaining)} gal</div>
+      <div class="card-sub">${starterRemaining>=0?'Sufficient':'SHORT - order needed'}</div>
+    </div>
+  `;
+
+  // Component breakdown
+  const totNrgn=DELIVERIES.reduce((s,d)=>s+d.nrgn,0);
+  const totAccess=DELIVERIES.reduce((s,d)=>s+d.access,0);
+  const totPg=DELIVERIES.reduce((s,d)=>s+d.pg,0);
+  const totM500=DELIVERIES.reduce((s,d)=>s+d.m500,0);
+  const totZinc=DELIVERIES.reduce((s,d)=>s+d.zinc,0);
+  const decNrgn=11000;
+  const nrgnVal=decNrgn*3.20+(totNrgn-decNrgn)*3.25;
+
+  document.getElementById('blendBreakdown').innerHTML=`
+    <tr><td>NRG-N 24-0-0-1</td><td class="text-right">${fmt(totNrgn)}</td><td class="text-right">${usd(nrgnVal)}</td></tr>
+    <tr><td>Access</td><td class="text-right">${fmt(totAccess)}</td><td class="text-right">${usd(totAccess*5.25)}</td></tr>
+    <tr><td>ProGerminator 9-24-3-1</td><td class="text-right">${fmt(totPg)}</td><td class="text-right">${usd(totPg*7.30)}</td></tr>
+    <tr><td>Micro 500</td><td class="text-right">${fmt(totM500)}</td><td class="text-right">${usd(totM500*19)}</td></tr>
+    <tr><td>4% Zinc</td><td class="text-right">${fmt(totZinc)}</td><td class="text-right">${usd(totZinc*18.50)}</td></tr>
+    <tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL LIQUID</td><td class="text-right">${fmt(totNrgn+totAccess+totPg+totM500+totZinc)}</td><td class="text-right">${usd(nrgnVal+totAccess*5.25+totPg*7.30+totM500*19+totZinc*18.50)}</td></tr>
+  `;
+})();
+
+// ==================== CROP ROTATION TAB ====================
+(function buildRotation(){
+  let rows='';
+  CROP_HIST.forEach(r=>{
+    const total=r.C+r.S+r.W+r.G;
+    rows+=`<tr><td style="font-weight:700">${r.y}</td><td class="text-right crop-corn">${fmt(r.C)}</td><td class="text-right crop-soy">${fmt(r.S)}</td><td class="text-right" style="color:var(--blueL)">${r.W?fmt(r.W):'--'}</td><td class="text-right" style="color:var(--muted)">${r.G?fmt(r.G):'--'}</td><td class="text-right" style="font-weight:600">${fmt(total)}</td></tr>`;
+  });
+  document.getElementById('rotationTable').innerHTML=rows;
+
+  // Rotation visualization bars
+  let vizHtml='';
+  CROP_HIST.forEach(r=>{
+    const total=r.C+r.S+r.W+r.G;
+    const pC=(r.C/total*100).toFixed(1);
+    const pS=(r.S/total*100).toFixed(1);
+    const pW=(r.W/total*100).toFixed(1);
+    const pG=(r.G/total*100).toFixed(1);
+    vizHtml+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span style="width:40px;font-size:12px;font-weight:700;flex-shrink:0">${r.y}</span>
+      <div class="rot-chart" style="flex:1">
+        <div class="rot-seg" style="width:${pC}%;background:var(--gold)" title="Corn ${pC}%">C</div>
+        <div class="rot-seg" style="width:${pS}%;background:var(--accent)" title="Soy ${pS}%">S</div>
+        ${r.W?`<div class="rot-seg" style="width:${pW}%;background:var(--blueL)" title="Wheat ${pW}%">W</div>`:''}
+        ${r.G?`<div class="rot-seg" style="width:${pG}%;background:var(--muted)" title="GS ${pG}%">G</div>`:''}
+      </div>
+      <span style="width:50px;font-size:11px;color:var(--muted);text-align:right">${fmt(total)}</span>
+    </div>`;
+  });
+  document.getElementById('rotationViz').innerHTML=vizHtml;
+
+  // Field rotation table
+  let fRows='';
+  ALL_FIELDS.forEach(f=>{
+    const rotType=f.crop===f.prev?'Continuous':'Rotated';
+    const rotClass=f.crop===f.prev?'status-warn':'status-ok';
+    fRows+=`<tr><td>${f.n}</td><td><span class="${f.crop==='Corn'?'crop-corn':'crop-soy'}">${f.crop}</span></td><td>${f.prev}</td><td><span class="status ${rotClass}">${rotType}</span></td></tr>`;
+  });
+  document.getElementById('rotFieldTable').innerHTML=fRows;
+})();
+
+// ==================== FERT SUGGESTIONS TAB ====================
+(function buildFertSugg(){
+  let html='';
+  FIELDS.forEach(f=>{
+    const s=f.soil;
+    if(!s||!s.OM)return;
+    const suggs=[];
+
+    // Nitrogen recommendation
+    // Base N need: ~1.0-1.2 lb N per bu yield goal, minus N credits
+    const nCredit=f.prev==='Soybeans'?40:f.prev==='Milo'?20:0;
+    const omCredit=Math.round((s.OM-2)*20);
+    const baseN=Math.round(f.yg*1.1);
+    const adjN=Math.max(0,baseN-nCredit-omCredit);
+    suggs.push(`<b>Nitrogen:</b> Yield goal ${f.yg} bu/ac suggests ${baseN} lb N/ac base need. Credit ${nCredit} lb/ac from ${f.prev}, ${omCredit} lb/ac from O.M. (${s.OM}%). Adjusted N rate: <b>${adjN} lb/ac</b>.`);
+
+    // Phosphorus
+    if(s.P<8){
+      suggs.push(`<b>Phosphorus:</b> Soil test P is <span style="color:var(--red)">${s.P} ppm (Low)</span>. Recommend 40-50 lb P2O5/ac build + 20-30 lb maintenance.`);
+    }else if(s.P<15){
+      suggs.push(`<b>Phosphorus:</b> Soil test P is ${s.P} ppm (Medium). Recommend 20-30 lb P2O5/ac maintenance rate.`);
+    }else if(s.P<30){
+      suggs.push(`<b>Phosphorus:</b> Soil test P is ${s.P} ppm (High). Maintenance rate of 15-20 lb P2O5/ac sufficient.`);
+    }else{
+      suggs.push(`<b>Phosphorus:</b> Soil test P is <span style="color:var(--accent)">${s.P} ppm (Very High)</span>. No P application recommended.`);
+    }
+
+    // Potassium
+    if(s.K<100){
+      suggs.push(`<b>Potassium:</b> Soil test K is ${s.K} ppm. Recommend 60-80 lb K2O/ac for build + maintenance.`);
+    }else{
+      suggs.push(`<b>Potassium:</b> Soil test K is <span style="color:var(--accent)">${s.K} ppm (Adequate)</span>. Maintenance rate of 30-40 lb K2O/ac.`);
+    }
+
+    // Sulfur
+    if(s.S<5){
+      suggs.push(`<b>Sulfur:</b> Soil test S is ${s.S} ppm. Recommend 10-15 lb S/ac, especially on sandier soils.`);
+    }else{
+      suggs.push(`<b>Sulfur:</b> Soil test S is ${s.S} ppm (Adequate). Monitor only.`);
+    }
+
+    // BSK
+    if(f.bsk>5){
+      suggs.push(`<b>BSK Index:</b> ${f.bsk} is elevated. Consider variable-rate seeding and split N application.`);
+    }
+
+    html+=`<div class="sugg-card">
+      <h4>${f.n} (${fmt(f.ac,1)} ac) - YG: ${f.yg} bu/ac | Prev: ${f.prev}</h4>
+      ${suggs.map(s=>`<p>${s}</p>`).join('')}
+    </div>`;
+  });
+  document.getElementById('fertSuggestions').innerHTML=html;
+})();
+
+// ==================== WEATHER API ====================
+const WL_KEY='ecbrmrynu1rukcphe1eqyofjqwcdsyut';
+const WL_SECRET='i4b3hbzthvjodaruzbq9a5w3rjdpz29s';
+
+async function hmacSign(message,secret){
+  const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const sig=await crypto.subtle.sign('HMAC',key,enc.encode(message));
+  return Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function fetchStation(stationId){
+  const t=Math.floor(Date.now()/1000);
+  // Build the string to sign: sort params alphabetically by key, concatenate key+value
+  const params={'api-key':WL_KEY,'station-id':String(stationId),'t':String(t)};
+  const sortedKeys=Object.keys(params).sort();
+  const stringToSign=sortedKeys.map(k=>k+params[k]).join('');
+  const signature=await hmacSign(stringToSign,WL_SECRET);
+
+  const url=`https://api.weatherlink.com/v2/current/${stationId}?api-key=${WL_KEY}&t=${t}&api-signature=${signature}`;
+  const resp=await fetch(url);
+  if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+  return resp.json();
+}
+
+function parseWeatherData(data){
+  const result={temp:null,hum:null,wind:null,windDir:null,rain:null,dew:null,bar:null,solar:null};
+  if(!data||!data.sensors)return result;
+
+  data.sensors.forEach(sensor=>{
+    if(!sensor.data||!sensor.data.length)return;
+    const d=sensor.data[0];
+
+    // dst:23 = Console/ISS type (temp, hum inside)
+    // dst:6 = Vantage Pro2/EnviroMonitor ISS with temp_out, hum_out
+    // Also check for generic sensor types
+    if(sensor.data_structure_type===23||sensor.sensor_type===45||sensor.sensor_type===43){
+      if(d.temp!=null)result.temp=d.temp;
+      if(d.hum!=null)result.hum=d.hum;
+      if(d.dew_point!=null)result.dew=d.dew_point;
+      if(d.bar!=null)result.bar=d.bar;
+      if(d.bar_sea_level!=null)result.bar=d.bar_sea_level;
+    }
+
+    if(sensor.data_structure_type===6||sensor.data_structure_type===23||sensor.sensor_type===37||sensor.sensor_type===84){
+      if(d.temp_out!=null)result.temp=d.temp_out;
+      if(d.temp!=null&&result.temp==null)result.temp=d.temp;
+      if(d.hum_out!=null)result.hum=d.hum_out;
+      if(d.hum!=null&&result.hum==null)result.hum=d.hum;
+      if(d.wind_speed_last!=null)result.wind=d.wind_speed_last;
+      if(d.wind_speed_avg_last_10_min!=null&&result.wind==null)result.wind=d.wind_speed_avg_last_10_min;
+      if(d.wind_dir_last!=null)result.windDir=d.wind_dir_last;
+      if(d.wind_dir_scalar_avg_last_10_min!=null&&result.windDir==null)result.windDir=d.wind_dir_scalar_avg_last_10_min;
+      if(d.rainfall_daily_in!=null)result.rain=d.rainfall_daily_in;
+      if(d.rain_day_in!=null&&result.rain==null)result.rain=d.rain_day_in;
+      if(d.dew_point!=null)result.dew=d.dew_point;
+      if(d.dew_point_out!=null)result.dew=d.dew_point_out;
+      if(d.bar!=null)result.bar=d.bar;
+      if(d.bar_sea_level!=null)result.bar=d.bar_sea_level;
+      if(d.solar_rad!=null)result.solar=d.solar_rad;
+    }
+
+    // Catch any sensor with outdoor data
+    if(d.temp_out!=null&&result.temp==null)result.temp=d.temp_out;
+    if(d.hum_out!=null&&result.hum==null)result.hum=d.hum_out;
+    if(d.wind_speed_last!=null&&result.wind==null)result.wind=d.wind_speed_last;
+    if(d.wind_dir_last!=null&&result.windDir==null)result.windDir=d.wind_dir_last;
+    if(d.rainfall_daily_in!=null&&result.rain==null)result.rain=d.rainfall_daily_in;
+    if(d.solar_rad!=null&&result.solar==null)result.solar=d.solar_rad;
+    if(d.bar_sea_level!=null&&result.bar==null)result.bar=d.bar_sea_level;
+    if(d.dew_point_out!=null&&result.dew==null)result.dew=d.dew_point_out;
+    if(d.dew_point!=null&&result.dew==null)result.dew=d.dew_point;
+  });
+  return result;
+}
+
+function windDirLabel(deg){
+  if(deg==null)return'--';
+  const dirs=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg/22.5)%16];
+}
+
+function renderWeatherCard(station,wx){
+  return`<div class="weather-card">
+    <h3>${station.name}</h3>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Station ID: ${station.id}</div>
+    <div class="metric-grid">
+      <div class="metric"><span class="metric-label">Temperature</span><span class="metric-val" style="color:var(--gold)">${wx.temp!=null?fmt(wx.temp,1)+'&deg;F':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Humidity</span><span class="metric-val">${wx.hum!=null?fmt(wx.hum,0)+'%':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Wind Speed</span><span class="metric-val">${wx.wind!=null?fmt(wx.wind,1)+' mph':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Wind Direction</span><span class="metric-val">${windDirLabel(wx.windDir)}${wx.windDir!=null?' ('+Math.round(wx.windDir)+'&deg;)':''}</span></div>
+      <div class="metric"><span class="metric-label">Rainfall Today</span><span class="metric-val" style="color:var(--blueL)">${wx.rain!=null?fmt(wx.rain,2)+' in':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Dew Point</span><span class="metric-val">${wx.dew!=null?fmt(wx.dew,1)+'&deg;F':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Barometer</span><span class="metric-val">${wx.bar!=null?fmt(wx.bar,2)+' inHg':'--'}</span></div>
+      <div class="metric"><span class="metric-label">Solar Radiation</span><span class="metric-val">${wx.solar!=null?fmt(wx.solar,0)+' W/m&sup2;':'--'}</span></div>
+    </div>
+  </div>`;
+}
+
+async function fetchAllWeather(){
+  const btn=document.getElementById('btnRefreshWeather');
+  const statusEl=document.getElementById('weatherStatus');
+  const grid=document.getElementById('weatherGrid');
+
+  btn.disabled=true;
+  btn.textContent='Loading...';
+  statusEl.innerHTML='<span class="dot dot-loading"></span><span style="font-size:12px;color:var(--muted)">Fetching weather data...</span>';
+
+  let html='';
+  let successCount=0;
+  const errors=[];
+
+  for(const station of STATIONS){
+    try{
+      const data=await fetchStation(station.id);
+      const wx=parseWeatherData(data);
+      html+=renderWeatherCard(station,wx);
+      successCount++;
+    }catch(e){
+      errors.push(station.name+': '+e.message);
+      html+=`<div class="weather-card" style="border-color:var(--red)">
+        <h3 style="color:var(--red)">${station.name}</h3>
+        <p style="color:var(--muted);font-size:12px">Error loading data: ${e.message}</p>
+        <p style="color:var(--muted);font-size:11px;margin-top:6px">If loading from file://, weather API requires HTTPS and will be blocked by CORS.</p>
+      </div>`;
+    }
+  }
+
+  grid.innerHTML=html;
+  btn.disabled=false;
+  btn.textContent='Refresh Weather';
+
+  const now=new Date().toLocaleString();
+  if(successCount===STATIONS.length){
+    statusEl.innerHTML=`<span class="dot dot-ok"></span><span style="font-size:12px;color:var(--accent)">${successCount}/${STATIONS.length} stations reporting &bull; Updated ${now}</span>`;
+  }else if(successCount>0){
+    statusEl.innerHTML=`<span class="dot dot-err" style="background:var(--gold)"></span><span style="font-size:12px;color:var(--gold)">${successCount}/${STATIONS.length} stations reporting &bull; ${now}</span>`;
+  }else{
+    statusEl.innerHTML=`<span class="dot dot-err"></span><span style="font-size:12px;color:var(--red)">0/${STATIONS.length} stations &bull; ${errors[0]||'Connection failed'} &bull; ${now}</span>`;
+  }
+}
+
+// PWA Service Worker Registration
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(r=>console.log('SW registered',r.scope)).catch(e=>console.log('SW failed',e));
+  });
+}
+</script>
+
+</body>
+</html>
