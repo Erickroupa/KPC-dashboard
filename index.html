@@ -879,10 +879,23 @@ async function fetchStation(stationId){
   const stringToSign=sortedKeys.map(k=>k+params[k]).join('');
   const signature=await hmacSign(stringToSign,WL_SECRET);
 
-  const url=`https://api.weatherlink.com/v2/current/${stationId}?api-key=${WL_KEY}&t=${t}&api-signature=${signature}`;
-  const resp=await fetch(url);
-  if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
-  return resp.json();
+    const apiUrl=`https://api.weatherlink.com/v2/current/${stationId}?api-key=${WL_KEY}&t=${t}&api-signature=${signature}`;
+    // Use CORS proxy for browser-based requests (WeatherLink API lacks CORS headers)
+    const CORS_PROXIES=['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url='];
+    let lastErr;
+    for(const proxy of CORS_PROXIES){
+          try{
+                  const resp=await fetch(proxy+encodeURIComponent(apiUrl));
+                  if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+                  return resp.json();
+          }catch(e){lastErr=e;}
+    }
+    // Fallback: try direct (works if CORS ever enabled or running locally)
+    try{
+          const resp=await fetch(apiUrl);
+          if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+          return resp.json();
+    }catch(e){throw lastErr||e;}
 }
 
 function parseWeatherData(data){
